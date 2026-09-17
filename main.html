@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestionnaire d'Emploi du Temps - Multi-Profils & Admin</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="app-container">
+
+    <!-- BARRE LATÉRALE DE NAVIGATION -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h1><span>📅</span> Planning PC</h1>
+        
+        <div class="profile-switcher">
+          <label>Profil Actif :</label>
+          <select id="active-profile-select"></select>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <button id="nav-week" class="active" onclick="switchTab('week', this)"><span>📊</span> Vue Semaine</button>
+        <button id="nav-routine" onclick="switchTab('routine', this)"><span>🔄</span> Routine Hebdo</button>
+        <button id="nav-daily" onclick="switchTab('daily', this)"><span>✏️</span> Modif. du Jour</button>
+        <button id="nav-activities" onclick="switchTab('activities', this)"><span>🏷️</span> Activités & Profils</button>
+        <button id="nav-recap" onclick="switchTab('recap', this)"><span>📈</span> Mon Bilan</button>
+        <button id="nav-admin-btn" class="nav-admin" onclick="switchTab('admin', this)" style="display:none;"><span>👑</span> Récap Admin</button>
+      </nav>
+    </aside>
+
+    <!-- CONTENU PRINCIPAL -->
+    <main class="main-content">
+
+      <!-- VUE 1 : CALENDRIER SEMAINE -->
+      <section id="view-week" class="view active">
+        <div class="view-header">
+          <h2>Planning Hebdomadaire</h2>
+          
+          <div style="display: flex; gap: 20px; align-items: center;">
+            <div class="switch-tabs">
+              <button id="week-mode-usuel" class="active" onclick="setWeeklyMode('usuel')">🔄 Emploi Usuel</button>
+              <button id="week-mode-modifie" onclick="setWeeklyMode('modifie')">✏️ Emploi Modifié</button>
+            </div>
+
+            <div class="week-nav">
+              <button onclick="changeWeek(-7)">◄</button>
+              <div class="week-label" id="week-display-label">Semaine du ...</div>
+              <button onclick="changeWeek(7)">►</button>
+              <button onclick="resetToCurrentWeek()" style="width:auto; padding:0 12px; font-size:0.8rem;">Aujourd'hui</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="weekly-grid-pc" id="weekly-grid-container"></div>
+      </section>
+
+      <!-- VUE 2 : ÉDITION ROUTINE -->
+      <section id="view-routine" class="view">
+        <div class="view-header">
+          <h2>Gestion de la Routine (Semaine Type)</h2>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <h3>Nouveau Créneau Usuel</h3>
+            <div class="form-group">
+              <label>Jour de la semaine :</label>
+              <select id="routine-day">
+                <option value="0">Lundi</option>
+                <option value="1">Mardi</option>
+                <option value="2">Mercredi</option>
+                <option value="3">Jeudi</option>
+                <option value="4">Vendredi</option>
+                <option value="5">Samedi</option>
+                <option value="6">Dimanche</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Heure Début :</label>
+                <input type="time" id="routine-start" value="08:00">
+              </div>
+              <div class="form-group">
+                <label>Heure Fin :</label>
+                <input type="time" id="routine-end" value="12:00">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Activité :</label>
+              <select id="routine-activity"></select>
+            </div>
+            <button class="btn" onclick="addRoutineSlot()">Ajouter à la Routine</button>
+          </div>
+
+          <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+              <h3 style="margin: 0; border: none;">Routine Enregistrée</h3>
+              <select id="filter-routine-day" onchange="renderRoutine()" style="width: auto;">
+                <option value="0">Lundi</option>
+                <option value="1">Mardi</option>
+                <option value="2">Mercredi</option>
+                <option value="3">Jeudi</option>
+                <option value="4">Vendredi</option>
+                <option value="5">Samedi</option>
+                <option value="6">Dimanche</option>
+              </select>
+            </div>
+            <div id="routine-list"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- VUE 3 : ÉDITION JOUR -->
+      <section id="view-daily" class="view">
+        <div class="view-header">
+          <h2>Modifications Ponctuelles du Jour</h2>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <h3>Ajouter une Modification</h3>
+            <div class="form-group">
+              <label>Date ciblée :</label>
+              <input type="date" id="daily-date" onchange="renderDailyView()">
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Heure Début :</label>
+                <input type="time" id="mod-start" value="09:00">
+              </div>
+              <div class="form-group">
+                <label>Heure Fin :</label>
+                <input type="time" id="mod-end" value="11:00">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Activité de remplacement :</label>
+              <select id="mod-activity"></select>
+            </div>
+            <div class="form-group">
+              <label>Note / Motif :</label>
+              <input type="text" id="mod-note" placeholder="ex: RDV pro, Congé...">
+            </div>
+            <button class="btn" onclick="addOverride()">Appliquer la Modification</button>
+          </div>
+
+          <div class="card">
+            <h3>Modifications Actives pour ce Jour</h3>
+            <div id="daily-actual-list"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- VUE 4 : ACTIVITÉS & PROFILS -->
+      <section id="view-activities" class="view">
+        <div class="view-header">
+          <h2>Paramètres : Activités & Profils</h2>
+        </div>
+
+        <div class="grid-2">
+          <div>
+            <div class="card">
+              <h3>Créer un Profil</h3>
+              <div class="form-group">
+                <label>Nom du profil :</label>
+                <input type="text" id="new-profile-name" placeholder="ex: Jean, Marie...">
+              </div>
+              <div class="form-group">
+                <label>Rôle :</label>
+                <select id="new-profile-role">
+                  <option value="false">Utilisateur Standard</option>
+                  <option value="true">Administrateur</option>
+                </select>
+              </div>
+              <button class="btn" onclick="addProfile()">Créer le Profil</button>
+            </div>
+
+            <div class="card">
+              <h3>Profils Existants</h3>
+              <div id="profiles-list"></div>
+            </div>
+          </div>
+
+          <div>
+            <div class="card">
+              <h3>Nouvelle Activité (Globale)</h3>
+              <div class="form-group">
+                <label>Nom de l'activité :</label>
+                <input type="text" id="act-name" placeholder="ex: Travail, Sport...">
+              </div>
+              <div class="form-group">
+                <label>Couleur du bloc :</label>
+                <input type="color" id="act-color" value="#4f46e5" style="height: 40px; cursor: pointer;">
+              </div>
+              <button class="btn" onclick="addActivity()">Ajouter l'Activité</button>
+            </div>
+
+            <div class="card">
+              <h3>Liste des Activités</h3>
+              <div id="activities-list"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- VUE 5 : RÉCAPITULATIF INDIVIDUEL -->
+      <section id="view-recap" class="view">
+        <div class="view-header">
+          <h2>Mon Récapitulatif Personnel</h2>
+          <div class="switch-tabs">
+            <button id="tab-btn-log" class="active" onclick="switchSubTab('log')">📋 Journal</button>
+            <button id="tab-btn-stats" onclick="switchSubTab('stats')">📊 Bilan d'Heures</button>
+          </div>
+        </div>
+
+        <div id="subtab-log">
+          <div class="card">
+            <h3>Historique de mes modifications</h3>
+            <div id="overrides-log-list"></div>
+          </div>
+        </div>
+
+        <div id="subtab-stats" style="display: none;">
+          <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+              <h3 style="margin: 0; border: none;">Volume d'Heures Mensuel</h3>
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <label style="margin: 0;">Mois :</label>
+                <input type="month" id="stats-month" onchange="renderStats()" style="width: auto;">
+              </div>
+            </div>
+
+            <table>
+              <thead>
+                <tr>
+                  <th>Activité</th>
+                  <th>Temps Normal</th>
+                  <th>Temps Effectif</th>
+                  <th>Écart</th>
+                </tr>
+              </thead>
+              <tbody id="stats-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- VUE 6 : ADMIN -->
+      <section id="view-admin" class="view">
+        <div class="view-header">
+          <h2>👑 Tableau de Bord Administrateur</h2>
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <label style="margin: 0; font-weight: 700;">Mois d'analyse :</label>
+            <input type="month" id="admin-stats-month" onchange="renderAdminView()" style="width: auto;">
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Récapitulatif Global des Profils</h3>
+          <p style="font-size:0.85rem; color:var(--text-light); margin-bottom:15px;">
+            Cliquez sur la ligne d'un profil pour dérouler le détail par activité.
+          </p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Profil</th>
+                <th>Rôle</th>
+                <th>Heures en + (Total)</th>
+                <th>Heures en - (Total)</th>
+                <th>Différence Nette</th>
+                <th style="text-align: right;">Action</th>
+              </tr>
+            </thead>
+            <tbody id="admin-table-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Charger le script principal ES Module -->
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
