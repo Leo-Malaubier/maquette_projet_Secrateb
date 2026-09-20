@@ -1,4 +1,5 @@
-import { state, calculateProfileStats } from '../state.js';
+import { state, calculateProfileStats, getMonthOverrides, setOverrideStatus } from '../state.js';
+import { STATUS_LABELS } from '../utils.js';
 
 export function toggleAccordion(rowId) {
   const targetRow = document.getElementById(rowId);
@@ -21,6 +22,7 @@ export function renderAdminView() {
     const netText = pStats.totalNet > 0 ? `+${pStats.totalNet.toFixed(1)} h` : `${pStats.totalNet.toFixed(1)} h`;
 
     const rowId = `accordion-${p.id}`;
+    const monthOverrides = getMonthOverrides(p.id, monthStr);
 
     tbody.innerHTML += `
       <tr class="profile-summary-row" onclick="toggleAccordion('${rowId}')">
@@ -60,9 +62,35 @@ export function renderAdminView() {
                       ${act.netDiff === 0 ? '0h' : (act.netDiff > 0 ? '+' : '') + act.netDiff.toFixed(1) + ' h'}
                     </td>
                   </tr>
-                `).join('')}
+                                `).join('')}
               </tbody>
             </table>
+
+            <h4 style="margin:16px 0 10px; font-size:0.9rem; color:var(--primary);">Écarts à valider (${monthOverrides.length})</h4>
+            ${monthOverrides.length === 0 ? '<p style="font-size:0.85rem; color:#64748b;">Aucun écart ce mois-ci.</p>' : `
+            <table class="sub-table">
+              <thead>
+                <tr><th>Date</th><th>Activité</th><th>Horaire</th><th>Motif</th><th>Statut</th><th>Action</th></tr>
+              </thead>
+              <tbody>
+                ${monthOverrides.map(o => {
+                  const act = state.activities.find(a => a.id === o.activityId) || { name: 'Inconnue', color: '#ccc' };
+                  const status = STATUS_LABELS[o.status || 'attente'];
+                  return `
+                  <tr>
+                    <td>${o.date}</td>
+                    <td style="color:${act.color}; font-weight:bold;">${act.name}</td>
+                    <td>${o.start} - ${o.end}</td>
+                    <td style="font-style:italic;">${o.note || '-'}</td>
+                    <td><span class="${status.cls}">${status.label}</span></td>
+                    <td style="display:flex; gap:6px;">
+                      <button class="btn-sm" style="background:var(--success); color:white; border:none; border-radius:6px; padding:5px 10px; cursor:pointer;" onclick="setOverrideStatus('${p.id}','${o.id}','valide')">Valider</button>
+                      <button class="btn-sm" style="background:var(--danger); color:white; border:none; border-radius:6px; padding:5px 10px; cursor:pointer;" onclick="setOverrideStatus('${p.id}','${o.id}','refuse')">Refuser</button>
+                    </td>
+                  </tr>`;
+                }).join('')}
+              </tbody>
+            </table>`}
           </div>
         </td>
       </tr>
