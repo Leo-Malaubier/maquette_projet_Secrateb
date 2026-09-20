@@ -134,3 +134,6 @@ tr.accordion-details-row.open { display: table-row; }
 .sub-table { background: white; border-radius: 8px; overflow: hidden; border: 1px solid var(--border); }
 .sub-table th { background: #f1f5f9; font-size: 0.8rem; }
 .sub-table td { font-size: 0.85rem; padding: 8px 12px; }
+.badge-attente { background: #fef3c7; color: #b45309; padding: 3px 8px; border-radius: 12px; font-size: 0.7rem; font-weight: 700; }
+.badge-valide  { background: #d1fae5; color: #047857; padding: 3px 8px; border-radius: 12px; font-size: 0.7rem; font-weight: 700; }
+.badge-refuse  { background: #fee2e2; color: #b91c1c; padding: 3px 8px; border-radius: 12px; font-size: 0.7rem; font-weight: 700; }
