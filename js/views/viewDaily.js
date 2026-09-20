@@ -1,4 +1,5 @@
 import { state, getCurrentSchedule, saveData } from '../state.js';
+import { STATUS_LABELS } from '../utils.js';
 
 export function addOverride() {
   const date = document.getElementById('daily-date').value;
