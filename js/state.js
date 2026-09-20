@@ -89,3 +89,17 @@ export function calculateProfileStats(profileId, monthStr) {
 
   return { activitiesStats, totalPlus, totalMinus, totalNet: totalPlus - totalMinus };
 }
+export function setOverrideStatus(profileId, overrideId, status) {
+  const sched = state.schedules[profileId];
+  if (!sched) return;
+  const ov = sched.overrides.find(o => o.id === overrideId);
+  if (ov) ov.status = status;
+  saveData();
+}
+
+export function getMonthOverrides(profileId, monthStr) {
+  const sched = state.schedules[profileId] || { routine: [], overrides: [] };
+  return sched.overrides
+    .filter(o => o.date.startsWith(monthStr))
+    .sort((a, b) => a.date.localeCompare(b.date));
+}
