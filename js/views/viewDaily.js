@@ -10,7 +10,7 @@ export function addOverride() {
 
   if (!date || !activityId || start >= end) return alert("Saisie invalide.");
 
-  getCurrentSchedule().overrides.push({ id: Date.now().toString(), date, start, end, activityId, note });
+  getCurrentSchedule().overrides.push({ id: Date.now().toString(), date, start, end, activityId, note, status: 'attente' });
   document.getElementById('mod-note').value = '';
   saveData();
 }
@@ -37,10 +37,11 @@ export function renderDailyView() {
 
   dayOverrides.forEach(item => {
     const act = state.activities.find(a => a.id === item.activityId) || { name: 'Inconnue', color: '#ccc' };
+    const status = STATUS_LABELS[item.status || 'attente'];
     container.innerHTML += `
       <div class="slot-item slot-modified" style="border-left-color:${act.color}">
         <div class="slot-info">
-          <span class="slot-title">${act.name} <span class="badge-modified">Modifié</span></span>
+          <span class="slot-title">${act.name} <span class="badge-modified">Modifié</span> <span class="${status.cls}">${status.label}</span></span>
           <span class="slot-time">${item.start} - ${item.end} ${item.note ? '• <i>'+item.note+'</i>' : ''}</span>
         </div>
         <button class="btn-danger" onclick="deleteOverride('${item.id}')">Supprimer</button>
