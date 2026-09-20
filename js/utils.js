@@ -29,3 +29,8 @@ export function getOverlapHours(s1, e1, s2, e2) {
   const endMin = Math.min(timeToMinutes(e1), timeToMinutes(e2));
   return Math.max(0, (endMin - startMax) / 60);
 }
+export const STATUS_LABELS = {
+  attente: { label: 'En attente', cls: 'badge-attente' },
+  valide:  { label: 'Validé',     cls: 'badge-valide' },
+  refuse:  { label: 'Refusé',     cls: 'badge-refuse' }
+};
