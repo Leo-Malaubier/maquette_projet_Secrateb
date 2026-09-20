@@ -8,6 +8,7 @@ import { renderDailyView, addOverride, deleteOverride } from './views/viewDaily.
 import { renderActivities, renderProfilesUI, addActivity, deleteActivity, switchProfile, addProfile, deleteProfile } from './views/viewActivities.js';
 import { renderRecap, renderStats, switchSubTab } from './views/viewRecap.js';
 import { renderAdminView, toggleAccordion } from './views/viewAdmin.js';
+import { setOverrideStatus } from './state.js';
 
 // Exportation globale pour les gestionnaires d'évènements HTML (onclick, onchange)
 window.switchTab = switchTab;
@@ -29,6 +30,7 @@ window.deleteProfile = deleteProfile;
 window.renderStats = renderStats;
 window.renderAdminView = renderAdminView;
 window.toggleAccordion = toggleAccordion;
+window.setOverrideStatus = setOverrideStatus;
 
 // Navigation Onglets Principal
 function switchTab(viewName, btnEl) {
